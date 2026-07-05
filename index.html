@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnswerLM Domain Analyzer</title>
+    <script defer data-domain="answerlm.com" src="https://plausible.io/js/script.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --speedometer-bg: #e2e8f0;
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+            --speedometer-bg: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: -1rem;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary);
+        }
+
+        .theme-toggle svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-title {
+            font-size: 2.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-subheadline {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .hero-description {
+            font-size: 0.95rem;
+            color: #9ca3af;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .search-box {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        button#analyzeBtn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button#analyzeBtn:hover { background: var(--primary-hover); }
+
+        .beta-signup-card {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .beta-signup-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .beta-signup-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .beta-signup-subtext {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .beta-signup-form {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #betaEmail {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            outline: none;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        #betaEmail:focus {
+            border-color: var(--primary);
+        }
+
+        .beta-signup-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .beta-signup-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .beta-confirmation-text {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .beta-confirmation-subtext {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        #results { margin-top: 2rem; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            animation: fadeIn 0.3s ease-out;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .domain-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        /* Speedometer Styles */
+        .speedometer-container {
+            width: 200px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .speedometer-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .speedometer-bg {
+            fill: none;
+            stroke: var(--speedometer-bg);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke 0.3s ease;
+        }
+
+        .speedometer-progress {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.8s ease-out, stroke 0.5s ease;
+        }
+
+        .score-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-badge {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .tier-label {
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .tier-high { background: #dcfce7; color: #166534; }
+        .tier-strong { background: #f0fdf4; color: #15803d; }
+        .tier-average { background: #fef9c3; color: #854d0e; }
+        .tier-weak { background: #fee2e2; color: #991b1b; }
+
+        body.dark-mode .tier-high { background: #064e3b; color: #dcfce7; }
+        body.dark-mode .tier-strong { background: #065f46; color: #f0fdf4; }
+        body.dark-mode .tier-average { background: #713f12; color: #fef9c3; }
+        body.dark-mode .tier-weak { background: #7f1d1d; color: #fee2e2; }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .breakdown-item {
+            background: var(--bg);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .breakdown-label { font-size: 0.75rem; color: var(--text-muted); }
+        .breakdown-value { font-weight: 700; font-size: 1.1rem; }
+
+        /* Keyword Pill Styles */
+        .keyword-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .keyword-pill {
+            background: var(--bg);
+            color: var(--primary);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .no-keywords {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+        }
+
+        .list { list-style: none; }
+        .list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .list-strengths li::before { content: "✅"; position: absolute; left: 0; }
+        .list-risks li::before { content: "⚠️"; position: absolute; left: 0; }
+
+        /* Best Use Cards */
+        .best-use-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .use-card {
+            background: var(--bg);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .use-card.best-fit {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .best-fit-badge {
+            position: absolute;
+            top: -0.6rem;
+            right: 0.75rem;
+            background: var(--primary);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 0.1rem 0.5rem;
+            border-radius: 1rem;
+            text-transform: uppercase;
+        }
+
+        .use-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-main);
+        }
+
+        .use-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .potential-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        .potential-high { background: #dcfce7; color: #166534; }
+        .potential-medium { background: #fef9c3; color: #854d0e; }
+        .potential-low { background: #f1f5f9; color: #475569; }
+
+        body.dark-mode .potential-high { background: #064e3b; color: #dcfce7; }
+        body.dark-mode .potential-medium { background: #713f12; color: #fef9c3; }
+        body.dark-mode .potential-low { background: #334155; color: #94a3b8; }
+
+        /* Verdict Section */
+        .verdict-box {
+            background: var(--bg);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .verdict-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .play-box {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body.dark-mode .play-box {
+            background: #312e81;
+            border-color: #4338ca;
+        }
+
+        .play-title { font-weight: 700; color: #4338ca; margin-bottom: 0.25rem; }
+        body.dark-mode .play-title { color: #c7d2fe; }
+        .next-step { font-size: 0.9rem; color: #3730a3; }
+        body.dark-mode .next-step { color: #e0e7ff; }
+
+        .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-style: italic; }
+
+        /* Feedback Button */
+        .feedback-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            z-index: 99;
+            font-size: 0.95rem;
+        }
+
+        .feedback-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgb(99 102 241 / 0.3);
+        }
+
+        /* Feedback Modal */
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 101;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .feedback-modal.active {
+            display: flex;
+        }
+
+        .feedback-modal-content {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-modal-header {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .feedback-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .feedback-modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .feedback-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feedback-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .feedback-form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .feedback-form-group textarea,
+        .feedback-form-group input {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: var(--bg);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        .feedback-form-group textarea:focus,
+        .feedback-form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        }
+
+        .feedback-form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .feedback-form-group.optional {
+            opacity: 0.8;
+        }
+
+        .feedback-form-group.optional label::after {
+            content: " (optional)";
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .feedback-form-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .feedback-form-actions button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .feedback-form-actions .submit-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .feedback-form-actions .submit-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .feedback-form-actions .cancel-btn {
+            background: var(--border);
+            color: var(--text-main);
+        }
+
+        .feedback-form-actions .cancel-btn:hover {
+            opacity: 0.8;
+        }
+
+        .feedback-confirmation {
+            display: none;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .feedback-confirmation.active {
+            display: block;
+        }
+
+        .feedback-confirmation-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-confirmation-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .feedback-confirmation-subtext {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Tab Navigation */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            background: rgba(99, 102, 241, 0.05);
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tab:hover:not(.disabled) {
+            color: var(--text-main);
+        }
+
+        .tab.active {
+            color: #6366f1;
+            font-weight: 600;
+            border-bottom-color: #6366f1;
+        }
+
+        .tab.active .tab-label {
+            font-weight: 700;
+        }
+
+        .tab-label {
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .tab-subtext {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.2rem;
+            font-weight: 400;
+        }
+
+        .tab.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .tab.disabled .tab-subtext::after {
+            content: " (Coming soon)";
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Coming Soon Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .modal-message {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .modal-close-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .mds-section {
+            margin-top: 1.5rem;
+        }
+
+        .mds-locked-card {
+            background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(99,102,241,0.1));
+            border: 1px dashed var(--primary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .mds-locked-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            filter: blur(6px);
+            user-select: none;
+            margin-bottom: 0.5rem;
+        }
+
+        .mds-upgrade-btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #22c55e);
+            color: white;
+        }
+
+        .mds-segments {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .mds-segment-pill {
+            padding: 0.35rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.25);
+            font-size: 0.85rem;
+        }
+
+        .verdict-killer,
+        .verdict-optimize,
+        .verdict-undervalued,
+        .verdict-solid,
+        .verdict-speculative {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 640px) {
+            .search-box { flex-direction: column; }
+            button#analyzeBtn { width: 100%; }
+            .theme-toggle { top: -3rem; }
+            .tabs-container {
+                flex-wrap: wrap;
+            }
+            .tab {
+                flex: 1 1 calc(33.333% - 0.5rem);
+                min-width: 100px;
+            }
+            .breakdown-grid, .best-use-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            .feedback-btn {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+            .feedback-modal-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
+    <div class="header">
+        <h1 class="hero-title">AnswerLM</h1>
+        <p class="hero-subtitle">Domain Opportunity Analyzer</p>
+        <div class="hero-subheadline">Beta Mode — Real data, improving daily</div>
+        <p class="hero-description">AnswerLM analyzes branding power, SEO potential, and monetization opportunities to reveal whether a domain is worth building or buying.</p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs-container">
+        <button class="tab active" id="analyzeTab" data-tab="analyze">
+            <span class="tab-label">Analyze</span>
+            <span class="tab-subtext">Evaluate domains</span>
+        </button>
+        <button class="tab disabled" id="discoverTab" data-tab="discover">
+            <span class="tab-label">Discover</span>
+            <span class="tab-subtext">Find opportunities</span>
+        </button>
+        <button class="tab disabled" id="createTab" data-tab="create">
+            <span class="tab-label">Create</span>
+            <span class="tab-subtext">Generate ideas</span>
+        </button>
+    </div>
+
+    <!-- Coming Soon Modal -->
+    <div class="modal-overlay" id="comingSoonModal">
+        <div class="modal-content">
+            <div class="modal-title">Coming Soon</div>
+            <div class="modal-message">Drop Hunter and AI domain generation are coming soon. We're building smarter ways to discover and create high-potential domains.</div>
+            <button class="modal-close-btn" id="modalCloseBtn">Got it</button>
+        </div>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="domainInput" placeholder="Enter domain name..." autofocus>
+        <button id="analyzeBtn">Analyze</button>
+    </div>
+
+    <!-- Beta Signup Section -->
+    <div class="beta-signup-card">
+        <div class="beta-signup-content">
+            <h3 class="beta-signup-title">Join the AnswerLM Beta Team</h3>
+            <p class="beta-signup-subtext">Get early access to new features and domain opportunities.</p>
+            
+            <div id="betaFormContainer">
+                <form id="betaSignupForm" class="beta-signup-form">
+                    <input type="email" id="betaEmail" placeholder="Enter your email" required>
+                    <button type="submit" class="beta-signup-btn">Join Beta</button>
+                </form>
+            </div>
+            
+            <div id="betaConfirmation" style="display: none; text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+                <p class="beta-confirmation-text">Welcome to the beta team!</p>
+                <p class="beta-confirmation-subtext">Check your email for next steps.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="results"></div>
+</div>
+
+<!-- Feedback Button -->
+<button class="feedback-btn" id="feedbackBtn">Feedback</button>
+
+<!-- Feedback Modal -->
+<div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal-content">
+        <button class="feedback-modal-close" id="feedbackClose">&times;</button>
+        
+        <!-- Form -->
+        <div id="feedbackForm">
+            <div class="feedback-modal-header">Share Your Feedback</div>
+            <form class="feedback-form" id="feedbackFormElement">
+                <div class="feedback-form-group">
+                    <label for="feedbackText">What feels off or could be improved?</label>
+                    <textarea id="feedbackText" placeholder="Your feedback here..." required></textarea>
+                </div>
+                <div class="feedback-form-group optional">
+                    <label for="feedbackDomain">Last analyzed domain</label>
+                    <input type="text" id="feedbackDomain" placeholder="(auto-filled)" readonly>
+                </div>
+                <div class="feedback-form-actions">
+                    <button type="submit" class="submit-btn">Submit Feedback</button>
+                    <button type="button" class="cancel-btn" id="feedbackCancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Confirmation -->
+        <div class="feedback-confirmation" id="feedbackConfirmation">
+            <div class="feedback-confirmation-icon">✅</div>
+            <div class="feedback-confirmation-text">Thanks for the feedback!</div>
+            <div class="feedback-confirmation-subtext">We appreciate your input and will use it to improve AnswerLM.</div>
+            <button class="feedback-form-actions" style="margin-top: 1.5rem;">
+                <button type="button" class="cancel-btn" id="feedbackDone" style="flex: 1; padding: 0.75rem;">Close</button>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const PRO_USER = false;
+    const input = document.getElementById('domainInput');
+    const btn = document.getElementById('analyzeBtn');
+    const results = document.getElementById('results');
+    const themeToggle = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('sunIcon');
+    
+    // Tab elements
+    const analyzeTab = document.getElementById('analyzeTab');
+    const discoverTab = document.getElementById('discoverTab');
+    const createTab = document.getElementById('createTab');
+    const comingSoonModal = document.getElementById('comingSoonModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const moonIcon = document.getElementById('moonIcon');
+
+    // Feedback elements
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    const feedbackModal = document.getElementById('feedbackModal');
+    const feedbackClose = document.getElementById('feedbackClose');
+    const feedbackCancel = document.getElementById('feedbackCancel');
+    const feedbackDone = document.getElementById('feedbackDone');
+    const feedbackFormElement = document.getElementById('feedbackFormElement');
+    const feedbackText = document.getElementById('feedbackText');
+    const feedbackDomain = document.getElementById('feedbackDomain');
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackConfirmation = document.getElementById('feedbackConfirmation');
+
+    // Beta signup elements
+    const betaSignupForm = document.getElementById('betaSignupForm');
+    const betaEmail = document.getElementById('betaEmail');
+    const betaFormContainer = document.getElementById('betaFormContainer');
+    const betaConfirmation = document.getElementById('betaConfirmation');
+
+    let lastAnalyzedDomain = '';
+
+    // --- THEME LOGIC ---
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        sunIcon.style.display = isDark ? 'block' : 'none';
+        moonIcon.style.display = isDark ? 'none' : 'block';
+    });
+
+    // --- FEEDBACK LOGIC ---
+    feedbackBtn.addEventListener('click', () => {
+        feedbackDomain.value = lastAnalyzedDomain;
+        feedbackForm.style.display = 'block';
+        feedbackConfirmation.classList.remove('active');
+        feedbackModal.classList.add('active');
+        feedbackText.focus();
+    });
+
+    feedbackClose.addEventListener('click', () => {
+        feedbackModal.classList.remove('active');
+        feedbackForm.style.display = 'block';
+        feedbackConfirmation.classList.remove('active');
+        feedbackText.value = '';
+    });
+
+    feedbackCancel.addEventListener('click', () => {
+        feedbackModal.classList.remove('active');
+        feedbackForm.style.display = 'block';
+        feedbackConfirmation.classList.remove('active');
+        feedbackText.value = '';
+    });
+
+    feedbackDone.addEventListener('click', () => {
+        feedbackModal.classList.remove('active');
+        feedbackForm.style.display = 'block';
+        feedbackConfirmation.classList.remove('active');
+        feedbackText.value = '';
+    });
+
+    feedbackFormElement.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const feedback = feedbackText.value.trim();
+        const domain = feedbackDomain.value.trim();
+        
+        if (!feedback) return;
+
+        // Log feedback to console
+        console.log('Feedback submitted:', {
+            timestamp: new Date().toISOString(),
+            feedback: feedback,
+            domain: domain || 'N/A'
+        });
+
+        // Show confirmation
+        feedbackForm.style.display = 'none';
+        feedbackConfirmation.classList.add('active');
+    });
+
+    // Close modal when clicking outside
+    feedbackModal.addEventListener('click', (e) => {
+        if (e.target === feedbackModal) {
+            feedbackModal.classList.remove('active');
+            feedbackForm.style.display = 'block';
+            feedbackConfirmation.classList.remove('active');
+            feedbackText.value = '';
+        }
+    });
+
+    // --- TAB NAVIGATION ---
+    
+    // Get all tabs
+    const allTabs = document.querySelectorAll('.tab');
+    
+    // Handle tab clicks
+    allTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Ignore disabled tabs
+            if (tab.classList.contains('disabled')) {
+                // Show coming soon modal for disabled tabs
+                if (tab.id === 'discoverTab' || tab.id === 'createTab') {
+                    comingSoonModal.classList.add('active');
+                }
+                return;
+            }
+            
+            // Remove active class from all tabs
+            allTabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tab.classList.add('active');
+        });
+    });
+
+    // Close coming soon modal
+    modalCloseBtn.addEventListener('click', () => {
+        comingSoonModal.classList.remove('active');
+    });
+
+    // Close modal when clicking outside
+    comingSoonModal.addEventListener('click', (e) => {
+        if (e.target === comingSoonModal) {
+            comingSoonModal.classList.remove('active');
+        }
+    });
+
+    // --- SCORING ENGINE ---
+
+    function normalizeScore(raw) {
+        let curved = Math.pow(raw / 100, 0.75) * 100;
+        let boosted = curved * 0.85 + 15;
+        return Math.min(100, Math.max(0, Math.round(boosted)));
+    }
+
+    const secondLevelTlds = new Set([
+        "co.uk", "org.uk", "ac.uk", "gov.uk", "com.au", "net.au", "org.au", "co.nz", "com.br", "com.mx", "com.sg", "co.jp", "com.cn", "com.tr", "co.in"
+    ]);
+
+    function normalizeDomainInput(domain) {
+        let normalized = domain.trim().toLowerCase();
+        normalized = normalized.replace(/^[a-z][a-z0-9+.-]*:\/\//, "");
+        normalized = normalized.replace(/^[^@\s]+@/, "");
+        normalized = normalized.split(/[/?#]/)[0];
+        normalized = normalized.replace(/:\d+$/, "");
+        normalized = normalized.replace(/^\.+|\.+$/g, "");
+        normalized = normalized.replace(/^www\d*\./, "");
+
+        const labels = normalized.split(".").filter(Boolean);
+        if (labels.length === 0) {
+            const fallbackName = normalized.replace(/[^a-z0-9-]/g, "");
+            return { input: domain, domain: fallbackName, name: fallbackName, extension: "", labels: [] };
+        }
+
+        if (labels.length === 1) {
+            const name = labels[0].replace(/[^a-z0-9-]/g, "");
+            return { input: domain, domain: name, name, extension: "", labels: [name] };
+        }
+
+        const lastTwo = labels.slice(-2).join(".");
+        const extensionLength = secondLevelTlds.has(lastTwo) && labels.length >= 3 ? 2 : 1;
+        const extension = labels.slice(-extensionLength).join(".");
+        const name = labels[labels.length - extensionLength - 1].replace(/[^a-z0-9-]/g, "");
+        const registrableLabels = labels.slice(labels.length - extensionLength - 1);
+
+        return {
+            input: domain,
+            domain: registrableLabels.join("."),
+            name,
+            extension,
+            labels
+        };
+    }
+
+    function stripTld(domain) {
+        return normalizeDomainInput(domain).name;
+    }
+
+    // --- KEYWORD ENGINE ---
+    const keywordCategories = {
+        homeServices: ["bathroom", "kitchen", "plumbing", "plumber", "roofing", "roof", "hvac", "ac", "flooring", "remodel", "remodeling", "contractor", "painting", "paint", "electrical", "electrician", "landscaping", "gutters", "windows", "siding", "basement", "garage", "handyman", "repair", "fence", "pool", "lawn", "pest", "cleaning", "moving", "storage", "pros", "pro"],
+        leadGenIntent: ["get", "leads", "lead", "quote", "quotes", "estimate", "call", "contact", "now", "today", "fast", "help", "fix", "fixed", "book", "hire", "find"],
+        content: ["blog", "guide", "tips", "recipes", "recipe", "learn", "howto", "how", "news", "journal", "daily", "review", "reviews", "birds", "bird", "wildbirds", "wild"],
+        ecommerce: ["shop", "store", "buy", "sell", "deals", "deal", "outlet", "market", "gear", "supplies"],
+        saas: ["app", "api", "dev", "code", "cloud", "software", "ai", "lm", "data", "bot", "automate", "automation"],
+        generic: ["best", "cheap", "online", "service", "services", "local", "near", "me", "city", "state", "world", "life", "style", "design", "web", "site", "page", "view", "show", "play", "game", "games", "sport", "sports", "fitness", "gym", "yoga", "health", "care", "doctor", "dentist", "insurance", "loan", "credit", "bank", "tax", "legal", "law", "realestate", "home", "auto", "car", "cars", "money", "pay", "floral", "forecast", "cash", "slim", "answer", "send", "card", "cards", "labs", "tech", "book", "books", "read", "write", "mail", "post", "link", "net", "com", "org", "info", "biz", "domain", "my", "go", "build", "make", "start", "try", "free", "easy", "food", "bread", "bake", "travel"]
+    };
+
+    const keywordBank = new Set(Object.values(keywordCategories).flat());
+    const homeServiceBank = new Set(keywordCategories.homeServices);
+    const leadGenIntentBank = new Set(keywordCategories.leadGenIntent);
+    const contentBank = new Set(keywordCategories.content);
+    const ecommerceBank = new Set(keywordCategories.ecommerce);
+    const saasBank = new Set(keywordCategories.saas);
+    const buyerIntentBank = new Set([
+        ...keywordCategories.ecommerce,
+        ...keywordCategories.homeServices,
+        ...keywordCategories.leadGenIntent,
+        "insurance", "loan", "loans", "credit", "mortgage", "bank", "tax", "legal", "law", "care", "doctor", "dentist", "rent", "rental"
+    ]);
+    const highValueNicheBank = new Set([
+        ...keywordCategories.homeServices,
+        "insurance", "loan", "loans", "credit", "mortgage", "bank", "tax", "legal", "law", "doctor", "dentist", "dental", "health", "care", "auto", "cyber", "software", "realestate", "home"
+    ]);
+    const premiumExtensions = new Set(["com", "ai", "io", "co"]);
+
+    const keywordPriorityBanks = [homeServiceBank, leadGenIntentBank, ecommerceBank, saasBank, contentBank];
+
+    function keywordPriority(keyword) {
+        const index = keywordPriorityBanks.findIndex(bank => bank.has(keyword));
+        return index === -1 ? keywordPriorityBanks.length : index;
+    }
+
+    function collectKeywordMatches(compactName, splitTokens) {
+        const candidates = [];
+        const pushCandidate = (keyword, start, source) => {
+            if (start < 0) return;
+            candidates.push({
+                keyword,
+                start,
+                end: start + keyword.length,
+                source,
+                priority: keywordPriority(keyword)
+            });
+        };
+
+        splitTokens.forEach(token => {
+            if (keywordBank.has(token)) pushCandidate(token, compactName.indexOf(token), "token");
+        });
+
+        Array.from(keywordBank).forEach(keyword => {
+            let start = compactName.indexOf(keyword);
+            while (start !== -1) {
+                const end = start + keyword.length;
+                const isShortToken = keyword.length <= 2;
+                const isEdgeShortToken = ["ai", "lm"].includes(keyword) && (start === 0 || end === compactName.length);
+                if (!isShortToken || keyword === "ac" || isEdgeShortToken) {
+                    pushCandidate(keyword, start, "substring");
+                }
+                start = compactName.indexOf(keyword, start + 1);
+            }
+        });
+
+        return candidates
+            .sort((a, b) => a.start - b.start || b.keyword.length - a.keyword.length || a.priority - b.priority)
+            .reduce((selected, candidate) => {
+                const overlaps = selected.some(match => candidate.start < match.end && candidate.end > match.start);
+                if (!overlaps) selected.push(candidate);
+                return selected;
+            }, [])
+            .sort((a, b) => a.start - b.start);
+    }
+
+    /**
+     * Human-like Domain Word Segmentation
+     * Uses a recursive approach plus span-aware substring matching.
+     * Longer overlapping matches block shorter accidental fragments.
+     */
+    function parseDomainWords(name) {
+        if (!name) return [];
+        const compactName = name.replace(/[^a-z0-9]/g, "");
+        const splitTokens = name.split(/[^a-z0-9]+/).filter(Boolean);
+        const memo = {};
+        function solve(s) {
+            if (s === "") return { words: [], score: 0 };
+            if (memo[s]) return memo[s];
+            let best = { words: [], score: -Infinity };
+            for (let i = 1; i <= s.length; i++) {
+                const prefix = s.substring(0, i);
+                const isWord = keywordBank.has(prefix);
+                const isValidWord = isWord && (prefix.length >= 3 || ["ai", "lm", "me", "my", "go", "do", "up"].includes(prefix));
+                if (isValidWord) {
+                    const result = solve(s.substring(i));
+                    if (result.score !== -Infinity) {
+                        const currentScore = Math.pow(prefix.length, 2) + result.score;
+                        if (currentScore > best.score) {
+                            best = { words: [prefix, ...result.words], score: currentScore };
+                        }
+                    }
+                }
+            }
+            if (best.score === -Infinity && s.length > 0) {
+                const result = solve(s.substring(1));
+                if (result.score !== -Infinity) {
+                    best = { words: result.words, score: result.score - 2 };
+                }
+            }
+            memo[s] = best;
+            return best;
+        }
+        const finalResult = solve(compactName);
+        const matchedWords = collectKeywordMatches(compactName, splitTokens).map(match => match.keyword);
+        const detected = new Set([...(finalResult.words || []), ...matchedWords]);
+
+        if (compactName.includes("getac") || compactName.includes("acfix") || compactName.includes("acrepair") || compactName.includes("hvac")) {
+            detected.add("ac");
+        }
+        if (detected.has("ai") && !(compactName.startsWith("ai") || compactName.endsWith("ai"))) {
+            detected.delete("ai");
+        }
+        if (detected.has("lm") && !compactName.endsWith("lm")) {
+            detected.delete("lm");
+        }
+
+        return Array.from(detected);
+    }
+
+    function classifyDomain(name, detectedKeywords, highValueWords, brandability) {
+        const hasHomeService = detectedKeywords.some(word => homeServiceBank.has(word));
+        const hasLeadIntent = detectedKeywords.some(word => leadGenIntentBank.has(word));
+        const hasEcommerce = detectedKeywords.some(word => ecommerceBank.has(word));
+        const hasSaas = detectedKeywords.some(word => saasBank.has(word));
+        const hasContent = detectedKeywords.some(word => contentBank.has(word));
+
+        if (hasHomeService && hasLeadIntent) return "lead-gen";
+        if (hasHomeService) return "local-services";
+        if (hasEcommerce) return "ecommerce";
+        if (hasSaas) return "saas";
+        if (hasContent) return "content";
+        return "brandable";
+    }
+
+    function buildBestUseModels(category) {
+        const recommendationMap = {
+            "local-services": [
+                { title: "Lead Generation Site", desc: "Build a service-focused site that captures homeowner inquiries.", potential: "High" },
+                { title: "Google Ads Landing Page", desc: "Use paid search traffic to convert high-intent local customers.", potential: "High" },
+                { title: "Sell to Contractor", desc: "Position the domain as a ready-made asset for a service provider.", potential: "Medium" }
+            ],
+            "lead-gen": [
+                { title: "Lead Gen Funnel", desc: "Capture quote requests and route them to home service contractors.", potential: "High" },
+                { title: "Pay-Per-Call Network", desc: "Drive phone calls from urgent local search demand.", potential: "High" },
+                { title: "Contractor Lead Sales", desc: "Sell exclusive or shared leads to contractors in the niche.", potential: "High" }
+            ],
+            content: [
+                { title: "Niche Blog", desc: "Publish search-focused articles around the topic.", potential: "Medium" },
+                { title: "Newsletter", desc: "Build a recurring audience with topic-specific updates.", potential: "Medium" },
+                { title: "Affiliate Site", desc: "Monetize recommendations, reviews, and buyer guides.", potential: "High" }
+            ],
+            ecommerce: [
+                { title: "Dropship Store", desc: "Sell relevant products without holding inventory.", potential: "Medium" },
+                { title: "Private Label Brand", desc: "Create a focused storefront around owned products.", potential: "High" },
+                { title: "Amazon Affiliate", desc: "Monetize product discovery and review traffic.", potential: "Medium" }
+            ],
+            saas: [
+                { title: "SaaS Product", desc: "Launch a software product with a focused brand.", potential: "High" },
+                { title: "Developer Tool", desc: "Build a utility for technical users or teams.", potential: "Medium" },
+                { title: "API Service", desc: "Offer a programmable service around the domain concept.", potential: "Medium" }
+            ],
+            brandable: [
+                { title: "Brand Build", desc: "Develop the name into a flexible standalone brand.", potential: "Medium" },
+                { title: "Flip Potential", desc: "Hold and resell to a buyer seeking a clean brand name.", potential: "Medium" },
+                { title: "Niche Blog", desc: "Use content to test demand before committing to a larger build.", potential: "Medium" }
+            ]
+        };
+        return recommendationMap[category].map((model, index) => ({ ...model, best: index === 0 }));
+    }
+
+    function buildVerdict(domain, category, score, tier, detectedKeywords, highValueWords) {
+        const actionWords = detectedKeywords.filter(word => leadGenIntentBank.has(word));
+        const serviceWords = detectedKeywords.filter(word => homeServiceBank.has(word));
+        const firstAction = actionWords[0];
+        const firstService = serviceWords[0] || highValueWords[0] || detectedKeywords[0];
+
+        if (category === "lead-gen") {
+            return `${domain} is a ${score >= 60 ? "strong" : "focused"} lead-generation opportunity in the home services category. The action word '${firstAction}' combined with the high-value keyword '${firstService}' creates clear contractor-lead potential.`;
+        }
+        if (category === "local-services") {
+            return `${domain} is a ${tier.toLowerCase()} for local home services. The keyword '${firstService}' gives it clear contractor, landing page, and local search potential.`;
+        }
+        if (category === "content") {
+            return `${domain} is a ${tier.toLowerCase()} for content. Its detected keywords point toward articles, guides, reviews, or audience-building rather than a contractor lead funnel.`;
+        }
+        if (category === "ecommerce") {
+            return `${domain} is a ${tier.toLowerCase()} for ecommerce. Its commerce-oriented keyword set is best suited to a storefront, affiliate catalog, or product brand.`;
+        }
+        if (category === "saas") {
+            return `${domain} is a ${tier.toLowerCase()} for SaaS or developer tooling. Its technical keyword set supports a software product, API, or automation-focused brand.`;
+        }
+        return `${domain} is a ${tier.toLowerCase()} with a score of ${score}. As a clean brandable name, it offers flexible potential for a brand build, resale, or niche validation.`;
+    }
+
+    function generateDomainInsights(domain, category, keywords, score) {
+        const actionWords = keywords.filter(word => leadGenIntentBank.has(word));
+        const serviceWords = keywords.filter(word => homeServiceBank.has(word));
+        const contentWords = keywords.filter(word => contentBank.has(word));
+        const ecommerceWords = keywords.filter(word => ecommerceBank.has(word));
+        const saasWords = keywords.filter(word => saasBank.has(word));
+        const primaryService = serviceWords[0] || keywords[0] || "service";
+        const primaryContent = contentWords[0] || keywords[0] || "topic";
+        const primaryCommerce = ecommerceWords[0] || keywords[0] || "product";
+        const primarySaas = saasWords[0] || keywords[0] || "software";
+        const domainName = domain.split(".")[0] || domain;
+        const brandLabel = domainName.charAt(0).toUpperCase() + domainName.slice(1);
+
+        const insightMap = {
+            "lead-gen": {
+                hiddenBusiness: `${primaryService.charAt(0).toUpperCase() + primaryService.slice(1)} lead-generation funnel for contractors.`,
+                customerAudience: `Homeowners ready to request ${primaryService} help, plus contractors who will pay for verified leads.`,
+                firstOfferToTest: `Free ${primaryService} quote request form.`,
+                first1000Plan: `Launch a quote page, test Google Ads in one metro, and sell verified leads to 2-3 ${primaryService} contractors.`,
+                valueBuilder90Day: `Landing pages, call tracking, contractor list, and proof that ${primaryService} leads convert.`,
+                strategicRisk: `Paid clicks can get expensive before lead quality is proven.`,
+                managerNote: `Validate contractor demand before building content.`
+            },
+            "local-services": {
+                hiddenBusiness: `Local ${primaryService} customer acquisition site.`,
+                customerAudience: `Homeowners comparing providers, local contractors needing booked jobs, and agencies running service campaigns.`,
+                firstOfferToTest: `${primaryService} provider matching in one city.`,
+                first1000Plan: `Create one city page, collect quote requests, manually introduce leads to contractors, and charge for the first closed or verified opportunities.`,
+                valueBuilder90Day: `City pages, contractor directory, conversion data, and testimonials from early provider conversations.`,
+                strategicRisk: `The name still needs geographic focus and trust signals. Without reviews, proof, or a clear local promise, it can feel generic.`,
+                managerNote: `Start with one city and one service. Expansion before proof will blur the offer.`
+            },
+            content: {
+                hiddenBusiness: primaryContent.includes("bird") ? "Outdoor media brand and birding community." : `${primaryContent.charAt(0).toUpperCase() + primaryContent.slice(1)} media brand and audience asset.`,
+                customerAudience: primaryContent.includes("bird") ? "Birding enthusiasts, outdoor gear buyers, tour operators, and brands that want a trusted hobby audience." : `Readers researching ${primaryContent}, email subscribers, sponsors, and affiliate advertisers.`,
+                firstOfferToTest: primaryContent.includes("bird") ? "Beginner birding guide with gear recommendations." : `Practical ${primaryContent} guide with email capture and affiliate recommendations.`,
+                first1000Plan: primaryContent.includes("bird") ? "Publish guides, build an email list, and monetize gear recommendations." : `Publish focused guides, build an email list, and sell affiliate clicks or a small sponsorship.`,
+                valueBuilder90Day: `Searchable guides, email list, click data, and proof of which topics create buying intent.`,
+                strategicRisk: `Content is slower to cash than leads or ecommerce. The topic needs a sharper buyer angle or it becomes a hobby site.`,
+                managerNote: `Do not write broadly. Find the money page first, then build supporting content around it.`
+            },
+            ecommerce: {
+                hiddenBusiness: `Focused storefront or affiliate catalog for ${primaryCommerce} demand.`,
+                customerAudience: `Buyers comparing ${primaryCommerce} options, suppliers, private-label sellers, and affiliate partners.`,
+                firstOfferToTest: `A curated ${primaryCommerce} deal page or best-products list.`,
+                first1000Plan: `Launch a lean product page, send low-budget paid or social traffic, and monetize with affiliate offers or a pre-order before holding inventory.`,
+                valueBuilder90Day: `Validated product clicks, supplier conversations, email capture, and a shortlist of offers with acceptable margins.`,
+                strategicRisk: `The domain will not carry weak unit economics. If margins, fulfillment, or differentiation are thin, traffic will not save it.`,
+                managerNote: `Do not buy inventory yet. Prove click and purchase intent first.`
+            },
+            saas: {
+                hiddenBusiness: primarySaas === "lm" ? "AI decision intelligence platform." : `${brandLabel} SaaS product or automation platform.`,
+                customerAudience: `Founders, operators, developers, and teams that will pay if the tool saves time or improves decisions.`,
+                firstOfferToTest: `Useful tool with one painful workflow and a paid early-access option.`,
+                first1000Plan: primarySaas === "lm" ? "Launch useful tools, gain users, convert power users." : `Launch a working tool, interview early users, and convert 10-20 power users into paid beta customers.`,
+                valueBuilder90Day: `Usage data, sharper ICP, paid beta users, product screenshots, and a workflow that improves from real inputs.`,
+                strategicRisk: `The domain needs a product wedge, not just AI language. If the outcome is vague, users will admire it and not pay.`,
+                managerNote: `Ship the smallest useful workflow. Let user data teach the product before adding features.`
+            },
+            brandable: {
+                hiddenBusiness: `Flexible brand shell that needs one specific market attached to it.`,
+                customerAudience: `Founders naming a new product, domain buyers looking for a clean asset, or operators testing a niche offer.`,
+                firstOfferToTest: `One landing page with a narrow promise, not a broad brand story.`,
+                first1000Plan: `Pick one use case, publish a landing page, collect qualified inquiries, and test a small service, preorder, or sponsorship offer.`,
+                valueBuilder90Day: `Clear positioning angle, inquiry data, email list, and evidence that one buyer type understands the name.`,
+                strategicRisk: `A brandable domain can stay abstract forever. Trademark checks and positioning discipline matter more than more brainstorming.`,
+                managerNote: `Choose a lane for 30 days. The domain gets more valuable when buyers can see a business, not just a name.`
+            }
+        };
+
+        const insight = insightMap[category] || insightMap.brandable;
+        return insight;
+    }
+
+    function analyzeDomain(domain) {
+        const normalized = normalizeDomainInput(domain);
+        const name = normalized.name;
+        const detectedKeywords = parseDomainWords(name);
+        const buyerIntentWords = detectedKeywords.filter(w => buyerIntentBank.has(w));
+        const highValueWords = detectedKeywords.filter(w => highValueNicheBank.has(w));
+        
+        // 1. Keyword Value Scoring (max 25)
+        let keywordValue = 0;
+        const kwCount = detectedKeywords.length;
+
+        if (kwCount === 0) {
+            keywordValue = name.length <= 6 ? 3 : 0;
+        } else if (kwCount === 1) {
+            keywordValue = 6;
+            if (highValueWords.length > 0) keywordValue += 4;
+            if (buyerIntentWords.length > 0) keywordValue += 2;
+        } else if (kwCount === 2) {
+            keywordValue = 10;
+            if (highValueWords.length > 0) keywordValue += 4;
+            if (buyerIntentWords.length > 0) keywordValue += 2;
+            const matchedLength = detectedKeywords.join('').length;
+            if (matchedLength >= name.length * 0.8) keywordValue += 2;
+        } else {
+            keywordValue = 15;
+            keywordValue += Math.min(6, highValueWords.length * 2);
+            keywordValue += Math.min(4, buyerIntentWords.length * 2);
+        }
+        
+        keywordValue = Math.min(25, Math.max(0, Math.round(keywordValue)));
+
+        // 2. Niche Clarity Score
+        const nicheClarityScore = (detectedKeywords.length >= 2 && name.length < 15) ? 15 : (detectedKeywords.length === 1 ? 8 : 0);
+
+        // 3. Brandability (max 25)
+        let brandability = 0;
+        if (name.length <= 6) brandability += 15;
+        else if (name.length <= 12) brandability += 10;
+        if (/[aeiouy]/.test(name)) brandability += 10;
+        if (detectedKeywords.length === 0 && name.length <= 8) brandability += 5;
+        brandability = Math.min(25, brandability);
+
+        // 4. Monetization (max 20)
+        let monetization = 10;
+        if (buyerIntentWords.length > 0) monetization += 10;
+        else if (detectedKeywords.length >= 2) monetization += 5;
+        monetization = Math.min(20, monetization);
+
+        // 5. Simplicity (max 15)
+        let simplicity = 15;
+        if (name.includes("-")) simplicity -= 10;
+        if (/\d/.test(name)) simplicity -= 5;
+        if (name.length > 15) simplicity -= 5;
+        simplicity = Math.max(0, simplicity);
+
+        // 6. Uniqueness (max 15)
+        let uniqueness = 10;
+        if (detectedKeywords.length >= 3) uniqueness -= 5;
+        if (name.length < 8) uniqueness += 5;
+        uniqueness = Math.max(0, uniqueness);
+
+        const classification = classifyDomain(name, detectedKeywords, highValueWords, brandability);
+        const extensionQuality = premiumExtensions.has(normalized.extension) ? "premium" : (normalized.extension ? "standard" : "unknown");
+        const hasExactKeywords = detectedKeywords.join("").length >= name.replace(/-/g, "").length * 0.75;
+
+        if (extensionQuality === "premium") uniqueness += 2;
+        if (hasExactKeywords) keywordValue = Math.min(25, keywordValue + 2);
+        if (classification === "lead-gen") monetization = Math.min(20, monetization + 2);
+
+        const rawScore = brandability + keywordValue + monetization + simplicity + uniqueness;
+        const score = normalizeScore(rawScore);
+        const audience = detectAudience(name, detectedKeywords);
+        let mdsResult = createFallbackMDS();
+        try {
+            mdsResult = calculateMDS(domain, detectedKeywords, audience, score);
+        } catch (error) {
+            mdsResult = createFallbackMDS();
+        }
+
+        let tier, tierClass;
+        if (score >= 80) { tier = "🚀 High Value Asset"; tierClass = "tier-high"; }
+        else if (score >= 60) { tier = "✅ Strong Opportunity"; tierClass = "tier-strong"; }
+        else if (score >= 40) { tier = "⚖️ Consider Carefully"; tierClass = "tier-average"; }
+        else { tier = "❌ Not Recommended"; tierClass = "tier-weak"; }
+
+        // Best Use Models
+        const models = buildBestUseModels(classification);
+
+        // Verdict Logic
+        const insights = generateDomainInsights(normalized.domain || domain, classification, detectedKeywords, score);
+        const verdict = `${buildVerdict(normalized.domain || domain, classification, score, tier, detectedKeywords, highValueWords)} ${insights.hiddenBusiness} ${insights.managerNote}`;
+        const recommendedPlayMap = {
+            "local-services": "Google Ads Landing Page",
+            "lead-gen": "Lead Gen Funnel",
+            content: "Niche Blog",
+            ecommerce: "Dropship Store",
+            saas: "SaaS Product",
+            brandable: "Brand Build"
+        };
+        const nextStepMap = {
+            "local-services": "Build a local service landing page and validate search demand.",
+            "lead-gen": "Test contractor lead demand with a focused landing page.",
+            content: "Publish a focused content cluster around the topic.",
+            ecommerce: "Validate product demand and supplier options.",
+            saas: "Validate the software use case with a landing page.",
+            brandable: "Validate the brand with a landing page."
+        };
+
+        // Track domain analysis event
+        if (window.plausible) {
+            window.plausible('DomainAnalyzed', {
+                props: {
+                    domain: domain.toLowerCase(),
+                    score: score,
+                    tier: tier
+                }
+            });
+        }
+
+        return {
+            domain: normalized.domain || domain.toLowerCase(),
+            score,
+            tier,
+            tierClass,
+            categoryScores: { brandability, keywordValue, monetization, simplicity, uniqueness },
+            detectedKeywords,
+            classification,
+            insights,
+            nicheClarity: nicheClarityScore >= 12 ? "High" : (nicheClarityScore > 0 ? "Moderate" : "Low"),
+            strengths: [
+                `Hidden Business: ${insights.hiddenBusiness}`,
+                `Customer/Audience: ${insights.customerAudience}`,
+                `First offer to test: ${insights.firstOfferToTest}`,
+                `First $1,000 plan: ${insights.first1000Plan}`,
+                `90-Day Value Builder: ${insights.valueBuilder90Day}`
+            ],
+            risks: [
+                insights.strategicRisk,
+                `Manager note: ${insights.managerNote}`
+            ],
+            bestUse: models.slice(0, 4),
+            verdict,
+            recommendedPlay: recommendedPlayMap[classification],
+            nextStep: insights.first1000Plan || nextStepMap[classification],
+            mds: mdsResult.mds,
+            mdsBreakdown: mdsResult.breakdown,
+            mdsExplanations: mdsResult.explanations,
+            verdictMatrix: mdsResult.verdictMatrix,
+            outcomeIntent: mdsResult.outcomeIntent,
+            segments: mdsResult.segments
+        };
+    }
+
+    // Classification checks:
+    // isendcard.com -> send, card
+    // getbathroom.com -> lead-gen
+    // getacfixed.com -> lead-gen
+    // attractwildbirds.com -> content
+    // answerlm.com -> answer, lm
+    // bathroompros.com -> local-services
+
+    // --- MACHINE DISCOVERY SCORE ENGINE ---
+
+    function getDomainCore(domain) {
+        return normalizeDomainInput(domain).name || stripTld(domain);
+    }
+
+    function hasAnySignal(text, signals) {
+        return signals.some(signal => text.includes(signal));
+    }
+
+    function detectAudience(name, detectedKeywords) {
+        const compactName = name.toLowerCase();
+        const keywordSet = new Set(detectedKeywords);
+        if (keywordSet.has("bathroom") || keywordSet.has("plumbing") || keywordSet.has("roofing") || keywordSet.has("ac") || keywordSet.has("hvac")) {
+            return "home-services";
+        }
+        if (hasAnySignal(compactName, ["paid", "cash", "money", "daily", "earn"])) {
+            return "income-seekers";
+        }
+        if (hasAnySignal(compactName, ["answer", "lm", "ai", "labs", "cloud", "api", "data"])) {
+            return "ai-operators";
+        }
+        if (hasAnySignal(compactName, ["how", "guide", "learn", "tips"])) {
+            return "learners";
+        }
+        if (hasAnySignal(compactName, ["mlm", "crypto"])) {
+            return "speculative-buyers";
+        }
+        return detectedKeywords.length > 0 ? "niche-searchers" : "unknown";
+    }
+
+    function detectOutcomeIntent(name, detectedKeywords, audience) {
+        const compactName = name.toLowerCase();
+        if (hasAnySignal(compactName, ["answer", "lm", "ask"])) {
+            return { label: "Get Answer", signal: "Users and agents can infer an answer or intelligence outcome." };
+        }
+        if (hasAnySignal(compactName, ["how", "guide", "learn", "tips"])) {
+            return { label: "Learn How", signal: "The domain maps cleanly to question-answer and tutorial behavior." };
+        }
+        if (hasAnySignal(compactName, ["paid", "cash", "money", "earn"])) {
+            return { label: "Earn Money", signal: "The language points to an income outcome, but trust must be earned." };
+        }
+        if (audience === "home-services" && detectedKeywords.some(word => leadGenIntentBank.has(word))) {
+            return { label: "Hire / Get Quote", signal: "The phrase resolves into a quote, call, or contractor action." };
+        }
+        if (audience === "ai-operators") {
+            return { label: "Use Tool", signal: "The domain can support tool discovery if the product promise is explicit." };
+        }
+        return { label: "Explore", signal: "The domain needs a clearer machine-readable outcome." };
+    }
+
+    function detectSegments(name, detectedKeywords, audience, outcomeIntent) {
+        const segments = new Set(detectedKeywords);
+        const compactName = name.toLowerCase();
+        if (audience) segments.add(audience);
+        if (outcomeIntent?.label) segments.add(outcomeIntent.label.toLowerCase().replace(/\s+\/\s+|\s+/g, "-"));
+        ["paid", "daily", "mlm", "xyvia", "labs", "answer", "how"].forEach(signal => {
+            if (compactName.includes(signal)) segments.add(signal);
+        });
+        return Array.from(segments).slice(0, 10);
+    }
+
+    function getVerdictMatrix(mds, name) {
+        if (name.includes("mlm") || name.includes("xyvia")) {
+            return { label: "Speculative", emoji: "🧪", className: "verdict-speculative" };
+        }
+        if (hasAnySignal(name, ["paid", "cash", "money", "earn"])) {
+            return { label: mds >= 62 ? "Optimize" : "Solid", emoji: mds >= 62 ? "⚙️" : "✅", className: mds >= 62 ? "verdict-optimize" : "verdict-solid" };
+        }
+        if (mds >= 82) return { label: "Category Killer", emoji: "🏆", className: "verdict-killer" };
+        if (mds >= 72) return { label: "Optimize", emoji: "⚙️", className: "verdict-optimize" };
+        if (mds >= 62) return { label: "Undervalued", emoji: "💎", className: "verdict-undervalued" };
+        if (mds >= 48) return { label: "Solid", emoji: "✅", className: "verdict-solid" };
+        return { label: "Speculative", emoji: "🧪", className: "verdict-speculative" };
+    }
+
+    function calculateMDS(domain, detectedKeywords, audience, humanScore) {
+        const name = getDomainCore(domain);
+        const outcomeIntent = detectOutcomeIntent(name, detectedKeywords, audience);
+        const hasAction = detectedKeywords.some(word => leadGenIntentBank.has(word)) || hasAnySignal(name, ["get", "call", "quote", "how", "answer"]);
+        const hasService = audience === "home-services";
+        const hasQuestion = hasAnySignal(name, ["how", "answer", "ask", "why", "what"]);
+        const hasMoney = hasAnySignal(name, ["paid", "cash", "money", "earn"]);
+        const isSpeculative = hasAnySignal(name, ["mlm", "xyvia"]);
+        const isInvented = detectedKeywords.length <= 1 && name.length > 8;
+
+        let conversationalFit = 42;
+        if (hasQuestion) conversationalFit += 34;
+        if (hasAction) conversationalFit += 18;
+        if (name.length <= 10) conversationalFit += 8;
+
+        let answerIntent = 35;
+        if (outcomeIntent.label === "Get Answer") answerIntent += 44;
+        if (outcomeIntent.label === "Learn How") answerIntent += 42;
+        if (outcomeIntent.label === "Hire / Get Quote") answerIntent += 34;
+        if (outcomeIntent.label === "Earn Money") answerIntent += 24;
+
+        let agentClarity = 38 + Math.min(28, detectedKeywords.length * 8);
+        if (hasService && hasAction) agentClarity += 24;
+        if (audience === "ai-operators") agentClarity += 26;
+        if (isInvented) agentClarity -= 18;
+
+        let commercialResolution = 34;
+        if (hasService && hasAction) commercialResolution += 44;
+        if (hasMoney) commercialResolution += 30;
+        if (audience === "ai-operators") commercialResolution += 22;
+        if (outcomeIntent.label === "Learn How") commercialResolution += 12;
+
+        let machineReadability = 42;
+        if (detectedKeywords.length >= 2) machineReadability += 26;
+        if (name.length <= 12) machineReadability += 16;
+        if (/[0-9-]/.test(name)) machineReadability -= 10;
+        if (isInvented) machineReadability -= 22;
+
+        let segmentConfidence = 36;
+        if (audience !== "unknown") segmentConfidence += 24;
+        if (hasService || audience === "ai-operators" || hasQuestion || hasMoney) segmentConfidence += 22;
+        if (isSpeculative) segmentConfidence -= 18;
+
+        const clamp = value => Math.max(0, Math.min(100, Math.round(value)));
+        const breakdown = {
+            conversationalFit: clamp(conversationalFit),
+            answerIntent: clamp(answerIntent),
+            agentClarity: clamp(agentClarity),
+            commercialResolution: clamp(commercialResolution),
+            machineReadability: clamp(machineReadability),
+            segmentConfidence: clamp(segmentConfidence)
+        };
+
+        if (isSpeculative) {
+            breakdown.agentClarity = Math.min(breakdown.agentClarity, 45);
+            breakdown.commercialResolution = Math.min(breakdown.commercialResolution, 42);
+            breakdown.segmentConfidence = Math.min(breakdown.segmentConfidence, 38);
+        }
+
+        const average = Object.values(breakdown).reduce((sum, value) => sum + value, 0) / 6;
+        const humanBoost = Math.min(8, Math.max(0, (humanScore - 60) / 5));
+        const mds = clamp(average + humanBoost - (isSpeculative ? 12 : 0));
+        const segments = detectSegments(name, detectedKeywords, audience, outcomeIntent);
+        const verdictMatrix = getVerdictMatrix(mds, name);
+        const explanations = {
+            summary: `${domain.toLowerCase()} has ${mds >= 75 ? "strong" : mds >= 55 ? "workable" : "weak"} machine discovery potential because agents can infer "${outcomeIntent.label}" from its language and route it toward ${audience.replace(/-/g, " ")} intent.`
+        };
+
+        return {
+            mds,
+            breakdown,
+            explanations,
+            verdictMatrix,
+            outcomeIntent,
+            segments
+        };
+    }
+
+    function createFallbackMDS() {
+        return {
+            mds: null,
+            breakdown: {},
+            explanations: { summary: "Machine Discovery Score is unavailable for this analysis." },
+            verdictMatrix: { label: "Speculative", emoji: "🧪", className: "verdict-speculative" },
+            outcomeIntent: { label: "Explore", signal: "MDS unavailable." },
+            segments: []
+        };
+    }
+
+    function showUpgradeModal() {
+        alert("AnswerLM Pro coming soon. Built for the AI web.");
+    }
+    window.showUpgradeModal = showUpgradeModal;
+
+    function formatMDSLabel(key) {
+        return key.replace(/([A-Z])/g, " $1").replace(/^./, char => char.toUpperCase());
+    }
+
+    function renderMDSSection(data) {
+        if (!PRO_USER) {
+            return `
+                <div class="mds-section">
+                    <div class="mds-locked-card">
+                        <div class="section-title">🤖 Machine Discovery Score</div>
+                        <div class="mds-locked-score">??/100</div>
+                        <p class="verdict-text">See how AI agents discover and recommend this domain. Built for the AI web.</p>
+                        <button class="mds-upgrade-btn" onclick="showUpgradeModal()">Unlock with AnswerLM Pro</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        const breakdown = data.mdsBreakdown || {};
+        const matrix = data.verdictMatrix || { label: "Speculative", emoji: "🧪", className: "verdict-speculative" };
+        const outcome = data.outcomeIntent || { label: "Explore", signal: "No outcome signal detected." };
+        const segments = data.segments || [];
+        const summary = data.mdsExplanations?.summary || "Machine Discovery Score summary unavailable.";
+
+        return `
+            <div class="mds-section">
+                <div class="section-title">🤖 Machine Discovery Score: ${data.mds ?? "??"}/100</div>
+                <div class="breakdown-grid">
+                    ${Object.entries(breakdown).map(([key, value]) => `
+                        <div class="breakdown-item">
+                            <div class="breakdown-label">${formatMDSLabel(key)}</div>
+                            <div class="breakdown-value">${value}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="verdict-box">
+                    <div class="${matrix.className}">${matrix.emoji} ${matrix.label}</div>
+                    <div class="verdict-text" style="margin-top: 0.75rem;"><strong>Outcome Intent:</strong> ${outcome.label} — ${outcome.signal}</div>
+                    <div class="mds-segments">
+                        ${segments.map(segment => `<span class="mds-segment-pill">${segment}</span>`).join('')}
+                    </div>
+                    <div class="verdict-text" style="margin-top: 0.75rem;">${summary}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- RENDER FUNCTION ---
+
+    function renderResult(data) {
+        lastAnalyzedDomain = data.domain;
+        
+        const radius = 80;
+        const circumference = Math.PI * radius;
+        const offset = circumference - (data.score / 100) * circumference;
+        let color = "#ef4444";
+        if (data.score >= 40 && data.score < 70) color = "#f59e0b";
+        if (data.score >= 70) color = "#22c55e";
+
+        results.innerHTML = `
+            <div class="card">
+                <div class="domain-title">${data.domain}</div>
+                <div class="section-title">🧠 Human Brand Score</div>
+                <div class="score-row">
+                    <div class="speedometer-container">
+                        <svg class="speedometer-svg" viewBox="0 0 200 120">
+                            <path class="speedometer-bg" d="M 20 100 A 80 80 0 0 1 180 100" />
+                            <path class="speedometer-progress" 
+                                  d="M 20 100 A 80 80 0 0 1 180 100" 
+                                  stroke="${color}"
+                                  stroke-dasharray="${circumference}"
+                                  stroke-dashoffset="${offset}" />
+                        </svg>
+                    </div>
+                    <div class="score-badge">Score: ${data.score}</div>
+                    <div class="tier-label ${data.tierClass}">${data.tier}</div>
+                </div>
+                <div class="section-title">Breakdown</div>
+                <div class="breakdown-grid">
+                    <div class="breakdown-item">
+                        <div class="breakdown-label">Brandability</div>
+                        <div class="breakdown-value">${data.categoryScores.brandability}</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-label">Monetization</div>
+                        <div class="breakdown-value">${data.categoryScores.monetization}</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-label">Simplicity</div>
+                        <div class="breakdown-value">${data.categoryScores.simplicity}</div>
+                    </div>
+                </div>
+
+                ${renderMDSSection(data)}
+
+                <div class="section-title">Keywords Detected</div>
+                ${data.detectedKeywords.length > 0 
+                    ? `<div class="keyword-pills">
+                        ${data.detectedKeywords.map(kw => `<span class="keyword-pill">${kw}</span>`).join('')}
+                       </div>`
+                    : `<div class="no-keywords">No strong keywords detected</div>`
+                }
+
+                <div class="section-title">Why it works</div>
+                <ul class="list list-strengths">
+                    ${data.strengths.map(s => `<li>${s}</li>`).join('')}
+                </ul>
+                <div class="section-title">Risks</div>
+                <ul class="list list-risks">
+                    ${data.risks.map(r => `<li>${r}</li>`).join('')}
+                </ul>
+
+                <div class="section-title">Best Use for This Domain</div>
+                <div class="best-use-grid">
+                    ${data.bestUse.map(u => `
+                        <div class="use-card ${u.best ? 'best-fit' : ''}">
+                            ${u.best ? '<div class="best-fit-badge">Best Fit</div>' : ''}
+                            <div class="use-title">${u.title}</div>
+                            <div class="use-desc">${u.desc}</div>
+                            <div class="potential-badge potential-${u.potential.toLowerCase()}">${u.potential} Potential</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="section-title">AnswerLM Verdict</div>
+                <div class="verdict-box">
+                    <div class="verdict-text">${data.verdict}</div>
+                </div>
+
+                <div class="play-box">
+                    <div class="play-title">Recommended Play: ${data.recommendedPlay}</div>
+                    <div class="next-step"><strong>Next Step:</strong> ${data.nextStep}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function handleAnalyze() {
+        const val = input.value.trim();
+        if (!val) return;
+        
+        // Track Analyze button click
+        if (window.plausible) {
+            window.plausible('AnalyzeClicked');
+        }
+        
+        results.innerHTML = '<div class="loading">Analyzing domain...</div>';
+        setTimeout(() => {
+            const data = analyzeDomain(val);
+            renderResult(data);
+        }, 600);
+    }
+
+    btn.addEventListener('click', handleAnalyze);
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleAnalyze();
+    });
+});
+</script>
+
+</body>
+</html>
